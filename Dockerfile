@@ -10,13 +10,16 @@ RUN apt-get update && apt-get install -y openssl apache2 && \
     add-apt-repository ppa:ondrej/php
 RUN apt update -y && apt install -y php8.0 libapache2-mod-php8.0 php8.0-mysql php8.0-common php8.0-curl
 
+# Install composer
+RUN apt-get install -y curl php-cli php-mbstring git unzip && \
+    curl -sS https://getcomposer.org/installer -o composer-setup.php && \
+    php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+
 # Enable SSL
-RUN a2enmod ssl && a2enmod rewrite
+RUN a2enmod ssl
 
-# Set php.ini max upload size to 100MB and max post size to 100MB
-RUN sed -i 's/upload_max_filesize = 2M/upload_max_filesize = 100M/g' /etc/php/8.0/apache2/php.ini
-RUN sed -i 's/post_max_size = 8M/post_max_size = 100M/g' /etc/php/8.0/apache2/php.ini
-
+# Enable rewrite module
+RUN a2enmod rewrite
 
 # Copy script and make it executable
 COPY ./start.sh /usr/local/bin/start.sh
